@@ -1,18 +1,6 @@
-const CODE: &str = "
-var b3 = 2;
-a = 1 + ( b3 + 4);
-return a;
-";
+pub mod parse;
+pub mod define;
 
-static NUM: &'static str = "NUM";
-static ID: &'static str = "ID";
-static KEYWORDS: &'static str = "KEYWORDS";
-static LPAREN: &'static str = "LPAREN";
-static RPAREN: &'static str = "RPAREN";
-static SEMICOLON: &'static str = "SEMICOLON";
-static WHITESPACE: &'static str = "WHITESPACE";
-static PLUS: &'static str = "PLUS";
-static ASSIGN: &'static str = "ASSIGN";
 
 use regex::Regex;
 
@@ -54,11 +42,11 @@ enum S {
 }
 
 fn main() {
-    let mut current_token: Vec<&str> = Vec::new();
+    let mut current_token: Vec<Vec<&str>> = Vec::new();
     let mut state = S::Start;
     let mut index = 0;
     let mut lookup = 0;
-    let new_code = CODE.as_bytes();
+    let new_code = define::CODE.as_bytes();
     while lookup < new_code.len() {
         while state != S::Done {
             let tmp = String::from(new_code[lookup] as char);
@@ -69,24 +57,24 @@ fn main() {
                     if isDigit!(char) {
                         state = S::Num;
                     } else if isBlank!(char) {
-                        current_token =  vec!(WHITESPACE," ");
+                        // current_token.push(vec!(WHITESPACE," "));
                         state = S::Done;
                     } else if isValidId!(char) {
                         state = S::ID;
                     } else if char == "=" {
-                        current_token =  vec!(ASSIGN,"=");
+                        current_token.push(vec!(define::ASSIGN,"="));
                         state = S::Done;
                     } else if char == "+" {
-                        current_token =  vec!(PLUS,"+");
+                        current_token.push(vec!(define::PLUS,"+"));
                         state = S::Done;
                     } else if char == ";" {
-                        current_token =  vec!(SEMICOLON,";");
+                        current_token.push(vec!(define::SEMICOLON,";"));
                         state = S::Done;
                     }else if char == "(" {
-                        current_token =  vec!(LPAREN,"(");
+                        current_token.push(vec!(define::LPAREN,"("));
                         state = S::Done;
                     }else if char == ")" {
-                        current_token =  vec!(RPAREN,")");
+                        current_token.push(vec!(define::RPAREN,")"));
                         state = S::Done;
                     };
                 }
@@ -95,7 +83,7 @@ fn main() {
                     if isDigit!(char) {
                         state = S::Num;
                     } else {
-                        current_token =  vec!(NUM,&CODE.clone()[index..lookup - 1]);
+                        current_token.push(vec!(define::NUM,&define::CODE.clone()[index..lookup - 1]));
                         lookup -= 1;
                         state = S::Done;
                     }
@@ -104,21 +92,21 @@ fn main() {
                     if isValidId!(char) {
                         state = S::ID;
                     } else {
-                        let temp_token = &CODE.clone()[index..lookup - 1];
+                        let temp_token = &define::CODE.clone()[index..lookup - 1];
                         lookup -= 1;
                         if isKeywords!(&temp_token) {
-                            current_token =  vec!(KEYWORDS,temp_token);
+                            current_token.push(vec!(define::KEYWORDS,temp_token));
                         } else {
-                            current_token =  vec!(ID,temp_token);
+                            current_token.push(vec!(define::ID,temp_token));
                         }
                         state = S::Done;
                     }
                 }
             }
         }
-        println!("{:?}", current_token);
-        current_token = Vec::new();
         index = lookup;
         state = S::Start;
     }
+    println!("{:?}", current_token);
+    parse::parseTokens(current_token);
 }
