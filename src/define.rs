@@ -11,5 +11,8 @@ pub(crate) static LPAREN: &'static str = "LPAREN";
 pub(crate) static RPAREN: &'static str = "RPAREN";
 pub(crate) static SEMICOLON: &'static str = "SEMICOLON";
 pub(crate) static WHITESPACE: &'static str = "WHITESPACE";
+
+pub(crate) static NewLine: &'static str = "NewLine";
+
 pub(crate) static PLUS: &'static str = "PLUS";
 pub(crate) static ASSIGN: &'static str = "ASSIGN";
