@@ -1,7 +1,4 @@
 use regex::Regex;
-
-
-
 use crate::define::CODE;
 use crate::define::{SEMICOLON, PLUS, ASSIGN, LPAREN, RPAREN, NUM, KEYWORDS, ID};
 use crate::parse;
@@ -14,7 +11,6 @@ enum S {
     Done,
     Num,
     ID,
-
 }
 
 pub fn analysis(){

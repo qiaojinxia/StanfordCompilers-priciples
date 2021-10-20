@@ -1,4 +1,4 @@
-use crate::{lexical_analysis};
+use crate::{lexers};
 #[macro_use]
 use crate::{is_keywords};
 use crate::define::*;
@@ -53,6 +53,14 @@ fn Statement(tokens:&Vec<Vec<&str>>) -> bool{
 fn Declaration(tokens:&Vec<Vec<&str>>) -> bool { FunctionDeclaration(tokens) | VariableDeclaration(tokens) }
 
 fn FunctionDeclaration(tokens:&Vec<Vec<&str>>) -> bool { false }
+
+
+fn SequenceExpression(tokens:&[Vec<&str>]) -> bool{
+    if tokens.len() == 0{
+        return true
+    }
+    tokens[0][0] == ID || SequenceExpression(&tokens[1..])
+}
 
 fn VariableDeclaration(tokens:&Vec<Vec<&str>>) -> bool {
     is_keywords!(&tokens[0][1])  &&  Assign(&tokens[1..])

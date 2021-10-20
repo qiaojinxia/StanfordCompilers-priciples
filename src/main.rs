@@ -1,9 +1,10 @@
-mod lexical_analysis;
+mod lexers;
 mod parse;
 #[macro_use]
 mod macros;
 mod define;
+mod ast;
 
 fn main() {
-    lexical_analysis::analysis();
+    lexers::analysis();
 }
