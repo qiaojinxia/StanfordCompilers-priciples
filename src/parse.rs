@@ -3,89 +3,61 @@ use crate::{lexers};
 use crate::{is_keywords};
 use crate::define::*;
 
-pub(crate) fn parse_statement(mut tokens:Vec<Vec<&str>>) -> Option<Vec<Vec<&str>>>{
-    let mut result:Vec<Vec<&str>> = vec![];
-    tokens.reverse();
-    loop{
-        let token = tokens.pop().unwrap();
-        result.push( token.clone());
-        if token[0] == SEMICOLON {
-            break;
-        }
-    }
-    if result.len() > 0{
-        Some(result)
-    }else{
-        None
-    }
+
+#[derive(Debug)]
+struct Parser<'a> {
+    scan_token:usize,
+    curr_token:usize,
+    tokens:Vec<Vec<&'a str>>,
 }
 
-pub(crate) fn parse(tokens:Vec<Vec<&str>>) {
-    let buffer = parse_statement(tokens);
-    let flag = true;
-    match buffer {
-        None => {}
-        Some( ref x) => {
-            if flag{
-                let isok = Statement(x);
-                assert_eq!(isok, false)
+
+impl Parser<'static>{
+    fn new(mut tokens:Vec<Vec<&str>>) -> Option<Parser> {
+        let parse = Parser{
+            scan_token: 0,
+            curr_token:0,
+            tokens:tokens,
+        };
+        Some(parse)
+    }
+    fn next_token(&mut self) -> Option<Vec<&'static str>> {
+        let token  = self.tokens.get(self.scan_token);
+        self.scan_token +=1;
+        match token {
+            None => {return None}
+            Some(val) => {
+                // if val[0] == SEMICOLON{ break }
+                statement.push(val.clone());
             }
         }
+        Some(token.unwrap().clone())
     }
-
 }
 
-fn Statement(tokens:&Vec<Vec<&str>>) -> bool{
-    let mut  new_token = tokens.clone();
-    match new_token.last() {
-        None => {return false}
-        Some(val) => {
-            if val[0] == SEMICOLON{
-                new_token.pop();
-            }else{
-                return false
+pub fn parse_program(tokens:Vec<Vec<&'static str>>) {
+    let mut parse = Parser::new(tokens);
+        match parse {
+            None => {}
+            Some(  ref mut x1) => {
+                loop{
+                    match x1.next_token() {
+                        None =>{break},
+                        Some(token ) =>{
+                            if token[0] == KEYWORDS {
+                                match token[1] {
+                                    "var" => {  }
+                                    KEYWORDS =>{}
+
+                                    _ => {}
+                                    }
+                                    println!("{:?}",token);
+                            }
+                        }
+                    }
+                }
             }
         }
-    }
-    Declaration(&new_token) | IfStatement(&new_token) | ReturnStatement(&new_token) | BlockStatement(&new_token)
 }
 
-fn Declaration(tokens:&Vec<Vec<&str>>) -> bool { FunctionDeclaration(tokens) | VariableDeclaration(tokens) }
 
-fn FunctionDeclaration(tokens:&Vec<Vec<&str>>) -> bool { false }
-
-
-fn SequenceExpression(tokens:&[Vec<&str>]) -> bool{
-    if tokens.len() == 0{
-        return true
-    }
-    tokens[0][0] == ID || SequenceExpression(&tokens[1..])
-}
-
-fn VariableDeclaration(tokens:&Vec<Vec<&str>>) -> bool {
-    is_keywords!(&tokens[0][1])  &&  Assign(&tokens[1..])
-}
-
-fn Assign(tokens:&[Vec<&str>]) -> bool{
-    tokens[0][0] == ID && tokens[1][0] == ASSIGN && P(&tokens[2..])
-}
-
-fn P(tokens:&[Vec<&str>]) -> bool {
-    tokens[0][0] == NUM
-}
-
-fn ADDExpression(tokens:&Vec<Vec<&str>>) -> bool {
-    MUlExpression(tokens) || ADDExpression(tokens) && tokens[1][0] == NUM && MUlExpression(tokens)
-}
-
-fn MUlExpression(tokens:&Vec<Vec<&str>>) -> bool {
-    P(tokens) || MUlExpression(tokens) && tokens[1][0] == NUM
-}
-
-fn Expression(tokens: &Vec<Vec<&str>>) -> bool { false }
-
-fn IfStatement(tokens: &Vec<Vec<&str>>) -> bool { false }
-
-fn BlockStatement(tokens: &Vec<Vec<&str>>) -> bool { false }
-
-fn ReturnStatement(tokens: &Vec<Vec<&str>>) -> bool { tokens.len() == 1 && tokens[0][1] == RETURN }

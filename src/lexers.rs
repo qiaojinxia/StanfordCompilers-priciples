@@ -82,6 +82,5 @@ pub fn analysis(){
         index = lookup;
         state = S::Start;
     }
-    println!("{:?} TotalLine:{}", current_token,cur_line);
-    parse::parse(current_token);
+    parse::parse_program(current_token);
 }
