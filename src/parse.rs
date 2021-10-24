@@ -31,7 +31,18 @@ impl Parser<'a>{
         }
 
     }
-
+    pub(crate) fn cur_token(&mut self) -> Option<Vec<&str>> {
+        let token = self.tokens.get(self.scan_token);
+        match token {
+            None => { return None }
+            Some(val) => {
+                return Some(token.unwrap().clone());
+            }
+        }
+    }
+    pub(crate) fn end_token(&mut self)  {
+        self.curr_token  = self.scan_token;
+    }
 
 }
 

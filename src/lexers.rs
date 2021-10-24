@@ -85,7 +85,8 @@ pub fn analysis(){
         state = S::Start;
     }
     let mut parse = Parser::new(current_token).unwrap();
-    let express:Box<Express> = Express::new();
-    express.Parse(parse.borrow_mut());
+    let mut express = Express::new();
+    express.Parse(&mut parse);
+    println!("{}",express);
 
 }

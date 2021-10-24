@@ -1,7 +1,5 @@
 pub const CODE: &str = "
 var b3 = 2;
-a = 1 + ( b3 + 4);
-return a;
 ";
 
 
@@ -19,3 +17,15 @@ pub static RETURN: &'static str = "return";
 
 
 pub static VAR: &'static str = "var";
+
+pub enum KType{
+    VariableDeclarator,
+    ID,
+    Literal,
+}
+
+pub enum NType{
+    Int,
+    Float,
+    Strings,
+}
