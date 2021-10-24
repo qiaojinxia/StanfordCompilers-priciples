@@ -1,3 +1,5 @@
+#![feature(in_band_lifetimes)]
+
 mod lexers;
 mod parse;
 #[macro_use]

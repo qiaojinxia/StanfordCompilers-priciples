@@ -1,9 +1,11 @@
 use regex::Regex;
 use crate::define::CODE;
 use crate::define::{SEMICOLON, PLUS, ASSIGN, LPAREN, RPAREN, NUM, KEYWORDS, ID};
-use crate::parse;
+use crate::parse::{Parser};
+use crate::ast::{Express,Node};
 #[macro_use]
-use crate::{is_keywords,is_valid_id,is_digit,is_blank,is_new_line};
+use crate::{is_keywords,is_valid_id,is_digit,is_blank,is_new_line,is_letter};
+use std::borrow::{Borrow, BorrowMut};
 
 #[derive(Debug, Eq, PartialEq)]
 enum S {
@@ -34,7 +36,7 @@ pub fn analysis(){
                         state = S::Done;
                     }else if is_blank!(char) {
                         state = S::Done;
-                    } else if is_valid_id!(char) {
+                    } else if is_letter!(char) {
                         state = S::ID;
                     } else if char == "=" {
                         current_token.push(vec!(ASSIGN, "="));
@@ -82,5 +84,8 @@ pub fn analysis(){
         index = lookup;
         state = S::Start;
     }
-    parse::parse_program(current_token);
+    let mut parse = Parser::new(current_token).unwrap();
+    let express:Box<Express> = Express::new();
+    express.Parse(parse.borrow_mut());
+
 }

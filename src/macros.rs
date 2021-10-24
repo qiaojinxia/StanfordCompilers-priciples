@@ -12,6 +12,15 @@ macro_rules! is_digit {
         re.is_match($x)
     }};
 }
+
+#[macro_export]
+macro_rules! is_letter {
+    ( $x:expr ) => {{
+        let re = Regex::new(r"[A-Za-z]").unwrap();
+        re.is_match($x)
+    }};
+}
+
 #[macro_export]
 macro_rules! is_valid_id {
     ( $x:expr ) => {{

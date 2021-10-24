@@ -1,119 +1,83 @@
+
+
 use std::fmt::{Display, Formatter};
+use crate::parse::Parser;
 
-trait Statement:Node{
-
-}
-
-trait Expression:Node{
-
-}
-
-trait Node:Display{
-    fn TokenLiteral() -> String;
-}
-//
-// struct IfStatement{
-//     Statements:Vec<Statement>,
-// }
-//
-// struct VariableDeclaration{
-//     baseInfo:BaseInfo,
-//     id:Node,
-//     init:Node,
-// }
-//
-
-struct Token {
-
-}
-struct LetStatements{
-    identifier:Node,
+pub(crate) trait Node{
+    fn Parse( self,_:&mut Parser);
 }
 
 
+pub(crate) struct Express {
+  left:Option<Box<Node>>,
+  right:Option<Box<Node>>,
+}
+
+impl Display for Express {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({})", self)
+    }
+}
+
+impl Express {
+    pub(crate) fn new() -> Box<Express> {
+       Box::new(Express{ left:None, right: None })
+    }
+}
+
+impl Node for Express {
+    fn Parse(mut self , parser: &mut Parser)  {
+       loop {
+           let token = parser.next_token();
+           let mut node = None;
+           match token {
+               Some(token) => {
+                   match token[1]{
+                       "var" =>{
+                           node = Some(VarStatements::new());
+                       }
+                       "if" =>{ println!("if")}
+                       "return" =>{ println!("return")}
+                       &_ => {}
+                   }
+               }
+               None => {break}
+           }
+           match self.left {
+               None => { self.left = node}
+               Some(_) => {self.right = node}
+           }
+       }
+    }
+}
+
+
+
+
+
+struct VarStatements{
+    variableName:String,
+    right:Option<Box<Node>>,
+}
 //
-//
-// //a
-// struct Identifier{
-//
-// }
-//
-// impl Display for Identifier {
-//     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-//         todo!()
-//     }
-// }
-//
-// impl Node for Identifier {
-//     fn TokenLiteral() -> String {
-//         todo!()
-//     }
-// }
-//
-// //3
-// struct Literal{
-//     a:BaseExpression,
-// }
-//
-// impl Display for Literal {
-//     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-//         todo!()
-//     }
-// }
-//
-// impl Node for Literal{
-//     fn TokenLiteral() -> String {
-//         todo!()
-//     }
-// }
-//
-//
-//
-// //{}
-// struct BlockStatement{
-//     baseInfo:BaseInfo,
-//
-// }
-//
-//
-// // =
-// struct AssignStatement{
-//
-//     left:Node,
-//     right:Node,
-//
-// }
-//
-//
-// struct BaseInfo{
-//     etype:String,
-//     start:int,
-//     end:int,
-// }
-//
-// //a == 3
-// struct BinaryExpression{
-//     baseInfo:BaseInfo,
-//     left:Node,
-//     right:Node,
-// }
-//
-// struct Program{
-//     Statements:Vec<Statement>,
-// }
-//
-//
-// impl Display for Program {
+// impl Display for VarStatements {
 //     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
 //         todo!()
 //     }
 // }
 //
 //
-// impl Node for Program{
-//     fn TokenLiteral() -> String {
-//         println!("{}",1);
-//         println!("商业友谊是指客户与企业保持的一种社交关系,与服务人员保持商业友谊的客户往往比较看中自己与企业间的长期关系,客户吧服务人员看作是朋友,就往往比较容易产生依恋感,也会愿意与服务人员的企业保持长期联系。");
-//
-//     }
-// }
+
+impl VarStatements{
+    pub(crate) fn new() -> Box<Node> {
+        Box::new(VarStatements{ variableName: "".to_string(), right: None })
+    }
+}
+
+impl Node for VarStatements {
+    fn Parse(self, _: &mut Parser) {
+        todo!()
+    }
+}
+
+

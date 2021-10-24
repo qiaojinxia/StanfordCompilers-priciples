@@ -16,3 +16,6 @@ pub static NewLine: &'static str = "NewLine";
 pub static PLUS: &'static str = "PLUS";
 pub static ASSIGN: &'static str = "ASSIGN";
 pub static RETURN: &'static str = "return";
+
+
+pub static VAR: &'static str = "var";
