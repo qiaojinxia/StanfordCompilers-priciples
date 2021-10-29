@@ -13,6 +13,7 @@ pub(crate) trait S:Display{
 
 }
 
+
 pub(crate) struct VarStatements{
     pub(crate) m_type:NType,
     pub(crate) identifier:Option<Box<dyn E>>,
@@ -21,7 +22,7 @@ pub(crate) struct VarStatements{
 
 impl Display for VarStatements {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        todo!()
+        write!(f,"m_type:{:?} identifier:{} init:{}",self.m_type,self.identifier.as_ref().unwrap(),self.init.as_ref().unwrap())
     }
 }
 
@@ -121,6 +122,8 @@ impl S for VarStatements {
 //
 //
 //
+
+#[derive(Debug)]
 pub(crate) struct ID{
     pub(crate) name:String,
     pub(crate) xtype:NType,
@@ -128,7 +131,7 @@ pub(crate) struct ID{
 
 impl Display for ID {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f,"type:Identifier \n name:{}",self.name)
+        write!(f,"Struct |xtype:{:?} name:{}|",self.xtype,self.name)
     }
 }
 
@@ -163,6 +166,7 @@ impl E for ID{
 // }
 //
 //
+#[derive(Debug)]
 pub struct Literal {
     pub(crate) m_type:NType,
     pub(crate) value:String,
@@ -176,7 +180,7 @@ impl Literal{
 
 impl Display for Literal {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f,"type:Literal \n value:{}",self.value)
+        write!(f,"Literal| m_type:{:?} value:{}|",self.m_type,self.value)
     }
 }
 
@@ -196,7 +200,7 @@ impl E for OperatorExpress{
 
 impl Display for OperatorExpress {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        todo!()
+        write!(f,"OperatorExpress| left:{} Operator:{} right:{} |",self.left.as_ref().unwrap(),self.Operator,self.right.as_ref().unwrap())
     }
 }
 

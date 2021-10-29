@@ -23,8 +23,8 @@ impl TokenScaner{
         token
 
     }
-    pub(crate) fn peek(&mut self) -> Option<&Token> {
-        self.tokens.get(self.scan_token + 1)
+    pub(crate) fn peek(&self) -> Option<&Token> {
+        self.tokens.get(self.scan_token)
     }
     pub(crate) fn end_statement(&mut self)  {
         self.curr_token  = self.scan_token;

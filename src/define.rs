@@ -96,12 +96,14 @@ impl TokenType{
     }
 }
 
+#[derive(Debug,Copy, Clone)]
 pub enum NType{
     None,
     Int,
     Float,
     Strings,
 }
+
 
 pub struct Parser {
     statement_func_map:HashMap<&'static str, ParserStatementFunc>,
@@ -143,7 +145,8 @@ impl Parser {
             match wrap_exec_func{
                 None => { println!("{} Not Implement!",key_word)}
                 Some(exec) => {
-                     exec(self);
+                     let e = exec(self);
+                        println!("{}",e.unwrap());
                 }
             }
 
@@ -167,10 +170,10 @@ pub(crate) fn func_parser_var(parser:&mut Parser) -> Option<Box<dyn S>> {
 }
 
 pub(crate) fn parser_operator_express(parser:&mut Parser,left_e:Option<Box<dyn E>>) -> Option<Box<dyn E>>{
-    let token = parser.scaner.next_token().unwrap();
+    let mut token = parser.scaner.next_token().unwrap();
     let mut _express = OperatorExpress{
         left: left_e,
-        Operator: "".to_string(),
+        Operator: String::from(token.literal),
         right: None
     };
     let token_priority = token.t_type.priority();
@@ -178,26 +181,24 @@ pub(crate) fn parser_operator_express(parser:&mut Parser,left_e:Option<Box<dyn E
     Some(Box::new(_express))
 }
 
-
-pub(crate) fn parser_express(parser:&mut Parser,precedence:i32) -> Option<Box<dyn E>> {
-    let mut token = parser.scaner.next_token().unwrap().t_type;
+pub(crate) fn parser_express(parser:&mut Parser,priority:i32) -> Option<Box<dyn E>> {
+    let mut token = parser.scaner.peek().unwrap().t_type;
     let left_express = parser.get_express(token).unwrap();
     let left_t = left_express(parser,None);
-    match parser.scaner.peek(){
-        None => {return left_t;}
+    return match parser.scaner.peek() {
+        None => { left_t }
         Some(token) => {
-            if token.literal == SEMICOLON.call(){
+            if token.literal == SEMICOLON.call() || token.t_type.priority() < priority {
                 return left_t;
             }
+            let right_e = parser.get_express(token.t_type).unwrap();
+            return right_e(parser, left_t);
         }
     }
-    token = parser.scaner.next_token().unwrap().t_type;
-    let right_e = parser.get_express(token).unwrap();
-    right_e(parser,left_t)
 }
 
 
-pub(crate) fn parser_literal(parser:&mut Parser,left_e:Option<Box<dyn E>>) -> Option<Box<dyn E>> {
+pub(crate) fn parser_literal(parser:&mut Parser,_:Option<Box<dyn E>>) -> Option<Box<dyn E>> {
     let mut literal = Literal{
         m_type: NType::Int,
         value: "".to_string()
@@ -207,7 +208,7 @@ pub(crate) fn parser_literal(parser:&mut Parser,left_e:Option<Box<dyn E>>) -> Op
     Some(Box::new(literal))
 }
 
-pub(crate) fn func_parser_id(parser:&mut Parser,left_e:Option<Box<dyn E>>) -> Option<Box<dyn E>> {
+pub(crate) fn func_parser_id(parser:&mut Parser,_:Option<Box<dyn E>>) -> Option<Box<dyn E>> {
     let token = parser.scaner.next_token().unwrap();
     if token.t_type != TokenType::ID{
         panic!("友情提示:行:{} 变量名错误啦!",token.line)
