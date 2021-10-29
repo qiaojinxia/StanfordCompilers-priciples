@@ -180,7 +180,7 @@ pub(crate) fn parser_operator_express(parser:&mut Parser,left_e:Option<Box<dyn E
 
 
 pub(crate) fn parser_express(parser:&mut Parser,precedence:i32) -> Option<Box<dyn E>> {
-    let mut token = parser.scaner.next_token().unwrap().t_type;
+    let mut token = parser.scaner.peek().unwrap().t_type;
     let left_express = parser.get_express(token).unwrap();
     let left_t = left_express(parser,None);
     match parser.scaner.peek(){
@@ -191,7 +191,7 @@ pub(crate) fn parser_express(parser:&mut Parser,precedence:i32) -> Option<Box<dy
             }
         }
     }
-    token = parser.scaner.next_token().unwrap().t_type;
+    token = parser.scaner.peek().unwrap().t_type;
     let right_e = parser.get_express(token).unwrap();
     right_e(parser,left_t)
 }
