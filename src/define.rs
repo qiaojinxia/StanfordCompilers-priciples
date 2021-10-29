@@ -3,8 +3,10 @@ use crate::ast::{E, S, ID};
 use crate::parse::{TokenScaner};
 use std::collections::HashMap;
 use crate::ast::{VarStatements};
-use crate::define::TokenType::EOF;
+use crate::define::TokenType::{EOF, SEMICOLON};
 use std::fmt::{Display, Formatter};
+use crate::lexers::Token;
+use crate::ast::{OperatorExpress,Literal};
 
 
 pub const CODE: &str = "
@@ -12,12 +14,25 @@ var b3 = 2 + 3 * 2;
 ";
 
 pub static NEW_LINE: &'static str = "NewLine";
-#[derive(Debug)]
+#[derive(Debug,Copy,Clone)]
 pub enum KeyWord{
     VAR,
     RETURN,
     IF,
 }
+
+impl KeyWord{
+    pub fn call(self) -> &'static str {
+        match self {
+            KeyWord::VAR => "var",
+            KeyWord::RETURN => "return",
+            KeyWord::IF => "if",
+        }
+    }
+}
+
+
+
 #[derive(Debug,Copy,Clone,Eq, PartialEq)]
 pub enum TokenType {
     NUM,
@@ -33,8 +48,6 @@ pub enum TokenType {
     WHITESPACE,
     INFIX,
     ASSIGN,
-    RETURN,
-    VAR,
     EOF,
 }
 
@@ -45,6 +58,24 @@ impl Display for TokenType {
 }
 
 impl TokenType{
+    pub fn priority(self) -> i32 {
+        match self {
+            TokenType::NUM => 0,
+            TokenType::ID => 0,
+            TokenType::KEYWORDS => 0,
+            TokenType::LPAREN => 0,
+            TokenType::RPAREN => 0,
+            TokenType::SEMICOLON => 0,
+            TokenType::WHITESPACE => 0,
+            TokenType::INFIX => 0,
+            TokenType::ASSIGN => 0,
+            TokenType::PLUS => 0,
+            TokenType::MINUS => 0,
+            TokenType::ASTERISK => 1,
+            TokenType::SLASH => 1,
+            TokenType::EOF => 0,
+        }
+    }
     pub fn call(self) -> &'static str {
         match self {
             TokenType::NUM => "None",
@@ -60,8 +91,6 @@ impl TokenType{
             TokenType::MINUS => "MINUS",
             TokenType::ASTERISK => "ASTERISK",
             TokenType::SLASH => "SLASH",
-            TokenType::RETURN => "RETURN",
-            TokenType::VAR => "VAR",
             TokenType::EOF => "EOF",
         }
     }
@@ -80,7 +109,7 @@ pub struct Parser {
     scaner:TokenScaner,
 }
 
-pub(crate) type ParserExpressFunc = fn(_:&mut Parser) -> Option<Box<dyn E>>;
+pub(crate) type ParserExpressFunc = fn(_:&mut Parser,leftE:Option<Box<dyn E>>) -> Option<Box<dyn E>>;
 pub(crate) type ParserStatementFunc = fn(_:&mut Parser) -> Option<Box<dyn S>>;
 
 
@@ -88,7 +117,7 @@ impl Parser {
     pub(crate) fn new(scanner:TokenScaner) -> Self{
         Parser { statement_func_map: hashmap!(), express_func_map: hashmap!(), scaner: scanner }
     }
-    pub(crate) fn register_statement(&mut self, token_type:TokenType, func:ParserStatementFunc){
+    pub(crate) fn register_statement(&mut self, token_type:KeyWord, func:ParserStatementFunc){
             self.statement_func_map.insert(token_type.call(), func);
     }
     pub(crate) fn register_express(&mut self, token_type:TokenType, func:ParserExpressFunc){
@@ -99,8 +128,8 @@ impl Parser {
         self.express_func_map.get(token_type.call())
     }
 
-    pub(crate) fn get_statement(&mut self, token_type:TokenType) -> Option<&ParserStatementFunc> {
-        self.statement_func_map.get(token_type.call())
+    pub(crate) fn get_statement(&mut self, key_word:&'static str) -> Option<&ParserStatementFunc> {
+        self.statement_func_map.get(key_word)
     }
 
     pub(crate) fn exec(&mut self){
@@ -109,12 +138,12 @@ impl Parser {
             if token.t_type == EOF{
                 break
             }
-            let token_type = token.t_type;
-            let wrap_exec_func = self.get_statement(token_type);
+            let key_word = token.literal;
+            let wrap_exec_func = self.get_statement(key_word);
             match wrap_exec_func{
-                None => { println!("{} Not Implement!",token_type)}
+                None => { println!("{} Not Implement!",key_word)}
                 Some(exec) => {
-                    let aa = exec(self);
+                     exec(self);
                 }
             }
 
@@ -123,25 +152,62 @@ impl Parser {
 }
 
 pub(crate) fn func_parser_var(parser:&mut Parser) -> Option<Box<dyn S>> {
-    let _statment = VarStatements{
+    let mut _statment = VarStatements{
         m_type: NType::Int,
         identifier: None,
         init: None
     };
-    let _token = parser.scaner.next_token();
-    match  _token {
-        None => {}
-        Some(token) => {
-            let t_type = token.t_type;
-            let id_parse = parser.get_express(t_type).unwrap();
-            id_parse(parser);
-        }
-
+    _statment.identifier = func_parser_id(parser,None);
+    let assign_token = parser.scaner.next_token().unwrap();
+    if assign_token.t_type != TokenType::ASSIGN{
+        panic!("友情提示:行:{} 期望 = 找到 {}!",assign_token.line,assign_token.literal)
     }
-    None
+    _statment.init = parser_express(parser,0);
+    Some(Box::new(_statment))
 }
 
-pub(crate) fn func_parser_id(parser:&mut Parser) -> Option<Box<dyn E>> {
+pub(crate) fn parser_operator_express(parser:&mut Parser,left_e:Option<Box<dyn E>>) -> Option<Box<dyn E>>{
+    let token = parser.scaner.next_token().unwrap();
+    let mut _express = OperatorExpress{
+        left: left_e,
+        Operator: "".to_string(),
+        right: None
+    };
+    let token_priority = token.t_type.priority();
+    _express.right = parser_express(parser,token_priority);
+    Some(Box::new(_express))
+}
+
+
+pub(crate) fn parser_express(parser:&mut Parser,precedence:i32) -> Option<Box<dyn E>> {
+    let mut token = parser.scaner.next_token().unwrap().t_type;
+    let left_express = parser.get_express(token).unwrap();
+    let left_t = left_express(parser,None);
+    match parser.scaner.peek(){
+        None => {return left_t;}
+        Some(token) => {
+            if token.literal == SEMICOLON.call(){
+                return left_t;
+            }
+        }
+    }
+    token = parser.scaner.next_token().unwrap().t_type;
+    let right_e = parser.get_express(token).unwrap();
+    right_e(parser,left_t)
+}
+
+
+pub(crate) fn parser_literal(parser:&mut Parser,left_e:Option<Box<dyn E>>) -> Option<Box<dyn E>> {
+    let mut literal = Literal{
+        m_type: NType::Int,
+        value: "".to_string()
+    };
+    let token = parser.scaner.next_token().unwrap();
+    literal.value = String::from(token.literal);
+    Some(Box::new(literal))
+}
+
+pub(crate) fn func_parser_id(parser:&mut Parser,left_e:Option<Box<dyn E>>) -> Option<Box<dyn E>> {
     let token = parser.scaner.next_token().unwrap();
     if token.t_type != TokenType::ID{
         panic!("友情提示:行:{} 变量名错误啦!",token.line)
@@ -150,7 +216,7 @@ pub(crate) fn func_parser_id(parser:&mut Parser) -> Option<Box<dyn E>> {
         name: token.literal.parse().unwrap(),
         xtype: NType::None,
     };
-    None
+    Some(Box::new(_express))
 }
 
 

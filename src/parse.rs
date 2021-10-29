@@ -23,15 +23,9 @@ impl TokenScaner{
         token
 
     }
-    // pub(crate) fn cur_token(&mut self) -> Option<Vec<&str>> {
-    //     let token = self.tokens.get(self.scan_token);
-    //     match token {
-    //         None => { return None }
-    //         Some(val) => {
-    //             return Some(token.unwrap().clone());
-    //         }
-    //     }
-    // }
+    pub(crate) fn peek(&mut self) -> Option<&Token> {
+        self.tokens.get(self.scan_token + 1)
+    }
     pub(crate) fn end_statement(&mut self)  {
         self.curr_token  = self.scan_token;
     }

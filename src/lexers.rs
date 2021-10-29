@@ -96,7 +96,8 @@ pub fn analysis() -> Vec<Token>{
                         let temp_token = &CODE.clone()[index..lookup - 1];
                         lookup -= 1;
                         if is_keywords!(&temp_token) {
-                            tokens.push(Token::form(cur_line,KEYWORDS, temp_token));
+                            let key_word = temp_token;
+                            tokens.push(Token::form(cur_line, KEYWORDS, key_word));
                         } else {
                             tokens.push(Token::form(cur_line,ID, temp_token));
                         }

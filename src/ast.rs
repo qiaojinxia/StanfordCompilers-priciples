@@ -163,9 +163,9 @@ impl E for ID{
 // }
 //
 //
-struct Literal {
-    m_type:NType,
-    value:String,
+pub struct Literal {
+    pub(crate) m_type:NType,
+    pub(crate) value:String,
 }
 
 impl Literal{
@@ -183,6 +183,24 @@ impl Display for Literal {
 impl E for Literal {
 
 }
+
+
+pub(crate) struct OperatorExpress {
+   pub(crate) left:Option<Box<dyn E>>,
+   pub(crate) Operator:String,
+   pub(crate) right:Option<Box<dyn E>>,
+}
+impl E for OperatorExpress{
+
+}
+
+impl Display for OperatorExpress {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        todo!()
+    }
+}
+
+
 //
 // impl Display for VarStatements {
 //     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
