@@ -50,7 +50,7 @@ impl TokenType {
             TokenType::NUM => 0,
             TokenType::ID => 0,
             TokenType::KEYWORDS => 0,
-            TokenType::LPAREN => 0,
+            TokenType::LPAREN => 3,
             TokenType::RPAREN => 0,
             TokenType::SEMICOLON => 0,
             TokenType::WHITESPACE => 0,

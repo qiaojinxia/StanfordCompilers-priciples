@@ -98,7 +98,7 @@ pub(crate) fn func_parser_var(parser: &mut Parser) -> Option<Box<dyn S>> {
     let assign_token = parser.scaner.next_token().unwrap();
     if assign_token.t_type != TokenType::ASSIGN {
         panic!(
-            "友情提示:行:{} 期望 = 找到 {}!",
+            "友情提示:行:{} 期望 '=' 找到 '{}'!",
             assign_token.line, assign_token.literal
         )
     }
@@ -115,7 +115,6 @@ pub(crate) fn parser_operator_express(
         operator: "".to_string(),
         right: None,
     };
-    // _express.left = parser_express(parser,0);
     let token = parser.scaner.next_token().unwrap();
     let token_priority = token.t_type.priority();
     _express.operator = String::from(token.literal);
@@ -164,4 +163,12 @@ pub(crate) fn func_parser_id(parser: &mut Parser, _: Option<Box<dyn E>>) -> Opti
         xtype: NType::None,
     };
     Some(Box::new(_express))
+}
+
+pub(crate) fn parser_lparen_express(parser: &mut Parser, _: Option<Box<dyn E>>) -> Option<Box<dyn E>> {
+    let _express = parser_express(parser,0);
+    if parser.scaner.next_token().unwrap().t_type != TokenType::RPAREN{
+        panic!("友情提示:行: 期望 ')' 找到 '{}' !",parser.scaner.peek().unwrap().literal)
+    }
+    _express
 }
