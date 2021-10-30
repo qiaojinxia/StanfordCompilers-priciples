@@ -1,5 +1,11 @@
 use crate::lexers::{Token};
+use crate::ast::{Literal, E, ID, OperatorExpress, VarStatements, S};
+use crate::define::{TokenType, NType, KeyWord};
+use crate::define::TokenType::{SEMICOLON, EOF};
+use std::collections::HashMap;
 #[macro_use]
+use crate::{hashmap};
+use std::borrow::BorrowMut;
 
 #[derive(Debug)]
 pub(crate) struct TokenScaner {
@@ -33,5 +39,128 @@ impl TokenScaner{
 }
 
 
+pub struct Parser {
+    statement_func_map:HashMap<&'static str, ParserStatementFunc>,
+    express_func_map:HashMap<&'static str, ParserExpressFunc>,
+    scaner:TokenScaner,
+}
+
+pub(crate) type ParserExpressFunc = fn(_:&mut Parser,leftE:Option<Box<dyn E>>) -> Option<Box<dyn E>>;
+pub(crate) type ParserStatementFunc = fn(_:&mut Parser) -> Option<Box<dyn S>>;
+
+
+impl Parser {
+    pub(crate) fn new(scanner:TokenScaner) -> Self{
+        Parser { statement_func_map: hashmap!(), express_func_map: hashmap!(), scaner: scanner }
+    }
+    pub(crate) fn register_statement(&mut self, token_type:KeyWord, func:ParserStatementFunc){
+        self.statement_func_map.insert(token_type.call(), func);
+    }
+    pub(crate) fn register_express(&mut self, token_type:TokenType, func:ParserExpressFunc){
+        self.express_func_map.insert(token_type.call(), func);
+    }
+
+    pub(crate) fn get_express(&self, token_type:TokenType) -> Option<&ParserExpressFunc> {
+        self.express_func_map.get(token_type.call())
+    }
+
+    pub(crate) fn get_statement(&mut self, key_word:&'static str) -> Option<&ParserStatementFunc> {
+        self.statement_func_map.get(key_word)
+    }
+
+    pub(crate) fn exec(&mut self){
+        loop {
+            let token = self.scaner.next_token().unwrap();
+            if token.t_type == EOF{
+                break
+            }
+            let key_word = token.literal;
+            let wrap_exec_func = self.get_statement(key_word);
+            match wrap_exec_func{
+                None => { println!("{} Not Implement!",key_word)}
+                Some(exec) => {
+                    let e = exec(self);
+                    println!("{}",e.unwrap());
+                }
+            }
+
+        }
+    }
+}
+
+pub(crate) fn func_parser_var(parser:&mut Parser) -> Option<Box<dyn S>> {
+    let mut _statment = VarStatements{
+        m_type: NType::Int,
+        identifier: None,
+        init: None
+    };
+    _statment.identifier = func_parser_id(parser,None);
+    let assign_token = parser.scaner.next_token().unwrap();
+    if assign_token.t_type != TokenType::ASSIGN{
+        panic!("友情提示:行:{} 期望 = 找到 {}!",assign_token.line,assign_token.literal)
+    }
+    _statment.init = parser_express(parser,0);
+    Some(Box::new(_statment))
+}
+
+pub(crate) fn parser_operator_express(parser:&mut Parser,left_e:Option<Box<dyn E>>) -> Option<Box<dyn E>>{
+    let mut _express = OperatorExpress{
+        left: left_e,
+        Operator: "".to_string(),
+        right: None
+    };
+    // _express.left = parser_express(parser,0);
+    let mut token = parser.scaner.next_token().unwrap();
+    let token_priority = token.t_type.priority();
+    _express.Operator= String::from(token.literal);
+    _express.right = parser_express(parser,token_priority);
+    Some(Box::new(_express))
+}
+
+pub(crate) fn parser_express(parser:&mut Parser,priority:i32) -> Option<Box<dyn E>> {
+    let left_express = parser.get_express( parser.scaner.peek().unwrap().t_type).unwrap();
+    let mut left_t = left_express(parser, None);
+    loop{
+        match parser.scaner.peek() {
+            None => {break}
+            Some(token) => {
+                if token.t_type.priority() <= priority {
+                    break;
+                }
+                let exec = parser.get_express(token.t_type).unwrap();
+                left_t = exec(parser,left_t);
+            }
+        }
+
+    }
+    left_t
+}
+
+
+pub(crate) fn parser_semicolon(_:&mut Parser,left_e:Option<Box<dyn E>>) -> Option<Box<dyn E>> {
+    left_e
+}
+
+pub(crate) fn parser_literal(parser:&mut Parser,_:Option<Box<dyn E>>) -> Option<Box<dyn E>> {
+    let mut literal = Literal{
+        m_type: NType::Int,
+        value: "".to_string()
+    };
+    let token = parser.scaner.next_token().unwrap();
+    literal.value = String::from(token.literal);
+    Some(Box::new(literal))
+}
+
+pub(crate) fn func_parser_id(parser:&mut Parser,_:Option<Box<dyn E>>) -> Option<Box<dyn E>> {
+    let token = parser.scaner.next_token().unwrap();
+    if token.t_type != TokenType::ID{
+        panic!("友情提示:行:{} 变量名错误啦!",token.line)
+    }
+    let _express = ID{
+        name: token.literal.parse().unwrap(),
+        xtype: NType::None,
+    };
+    Some(Box::new(_express))
+}
 
 

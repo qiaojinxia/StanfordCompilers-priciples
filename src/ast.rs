@@ -22,7 +22,7 @@ pub(crate) struct VarStatements{
 
 impl Display for VarStatements {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f,"m_type:{:?} identifier:{} init:{}",self.m_type,self.identifier.as_ref().unwrap(),self.init.as_ref().unwrap())
+        write!(f,"m_type:{:?} identifier:{} init:[{}]",self.m_type,self.identifier.as_ref().unwrap(),self.init.as_ref().unwrap())
     }
 }
 
@@ -200,7 +200,7 @@ impl E for OperatorExpress{
 
 impl Display for OperatorExpress {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f,"OperatorExpress| left:{} Operator:{} right:{} |",self.left.as_ref().unwrap(),self.Operator,self.right.as_ref().unwrap())
+        write!(f,"OperatorExpress[ left:{} Operator:{} right:{} ]",self.left.as_ref().unwrap(),self.Operator,self.right.as_ref().unwrap())
     }
 }
 
