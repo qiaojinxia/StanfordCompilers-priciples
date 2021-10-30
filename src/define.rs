@@ -1,39 +1,27 @@
-use crate::{hashmap};
-use crate::ast::{E, S, ID};
-use crate::parse::{TokenScaner};
-use std::collections::HashMap;
-use crate::ast::{VarStatements};
-use crate::define::TokenType::{EOF, SEMICOLON};
 use std::fmt::{Display, Formatter};
-use crate::lexers::Token;
-use crate::ast::{OperatorExpress,Literal};
-
 
 pub const CODE: &str = "
-var b3 = 2 * 3 + 2;
+var b3 = 2 * 3 + 2 * 4;
 ";
 
-pub static NEW_LINE: &'static str = "NewLine";
-#[derive(Debug,Copy,Clone)]
-pub enum KeyWord{
+#[derive(Debug, Copy, Clone)]
+pub enum KeyWord {
     VAR,
-    RETURN,
-    IF,
+    // RETURN,
+    // IF,
 }
 
-impl KeyWord{
+impl KeyWord {
     pub fn call(self) -> &'static str {
         match self {
             KeyWord::VAR => "var",
-            KeyWord::RETURN => "return",
-            KeyWord::IF => "if",
+            // KeyWord::RETURN => "return",
+            // KeyWord::IF => "if",
         }
     }
 }
 
-
-
-#[derive(Debug,Copy,Clone,Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum TokenType {
     NUM,
     ID,
@@ -46,18 +34,17 @@ pub enum TokenType {
     RPAREN,
     SEMICOLON,
     WHITESPACE,
-    INFIX,
     ASSIGN,
     EOF,
 }
 
 impl Display for TokenType {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-       write!(f,"{:?}",self)
+        write!(f, "{:?}", self)
     }
 }
 
-impl TokenType{
+impl TokenType {
     pub fn priority(self) -> i32 {
         match self {
             TokenType::NUM => 0,
@@ -67,7 +54,6 @@ impl TokenType{
             TokenType::RPAREN => 0,
             TokenType::SEMICOLON => 0,
             TokenType::WHITESPACE => 0,
-            TokenType::INFIX => 0,
             TokenType::ASSIGN => 0,
             TokenType::PLUS => 1,
             TokenType::MINUS => 0,
@@ -85,7 +71,6 @@ impl TokenType{
             TokenType::RPAREN => "RPAREN",
             TokenType::SEMICOLON => "SEMICOLON",
             TokenType::WHITESPACE => "WHITESPACE",
-            TokenType::INFIX => "INFIX",
             TokenType::ASSIGN => "ASSIGN",
             TokenType::PLUS => "PLUS",
             TokenType::MINUS => "MINUS",
@@ -96,14 +81,10 @@ impl TokenType{
     }
 }
 
-#[derive(Debug,Copy, Clone)]
-pub enum NType{
+#[derive(Debug, Copy, Clone)]
+pub enum NType {
     None,
     Int,
     Float,
     Strings,
 }
-
-
-
-
