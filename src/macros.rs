@@ -44,7 +44,6 @@ macro_rules! is_blank {
     }};
 }
 
-
 #[macro_export]
 macro_rules! hashmap {
     ( $( $key:expr => $val:expr ),* ) => {
@@ -55,4 +54,3 @@ macro_rules! hashmap {
         }
     };
 }
-

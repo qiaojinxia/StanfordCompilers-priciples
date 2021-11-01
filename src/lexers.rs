@@ -1,9 +1,10 @@
+use crate::define::{TokenType, CODE};
 use regex::Regex;
-use crate::define::{CODE, TokenType};
 
-#[macro_use]
-use crate::{is_keywords,is_valid_id,is_digit,is_blank,is_new_line,is_letter};
-use crate::define::TokenType::{ASSIGN, SEMICOLON, LPAREN, RPAREN, NUM, KEYWORDS, ID, EOF, PLUS, MINUS, ASTERISK, SLASH};
+use crate::define::TokenType::{
+    ASSIGN, ASTERISK, EOF, ID, KEYWORDS, LPAREN, MINUS, NUM, PLUS, RPAREN, SEMICOLON, SLASH,
+};
+use crate::{is_blank, is_digit, is_keywords, is_letter, is_new_line, is_valid_id};
 
 #[derive(Debug, Eq, PartialEq)]
 enum S {
@@ -14,23 +15,22 @@ enum S {
 }
 
 #[derive(Debug)]
-pub struct Token{
-    pub line:i32,
+pub struct Token {
+    pub line: i32,
     pub t_type: TokenType,
-    pub literal:&'static str,
+    pub literal: &'static str,
 }
-impl Token{
-    fn form(cur_line:i32,_type: TokenType, _literal:&'static str) -> Self{
-        Token{
-            line:cur_line,
-            t_type:_type,
-            literal:_literal,
+impl Token {
+    fn form(cur_line: i32, _type: TokenType, _literal: &'static str) -> Self {
+        Token {
+            line: cur_line,
+            t_type: _type,
+            literal: _literal,
         }
     }
-
 }
 
-pub fn analysis() -> Vec<Token>{
+pub fn analysis() -> Vec<Token> {
     let mut tokens: Vec<Token> = Vec::new();
     let mut state = S::Start;
     let mut index = 0;
@@ -48,34 +48,34 @@ pub fn analysis() -> Vec<Token>{
                         state = S::Num;
                     } else if is_new_line!(char) {
                         state = S::Done;
-                    }else if is_blank!(char) {
+                    } else if is_blank!(char) {
                         state = S::Done;
                     } else if is_letter!(char) {
                         state = S::ID;
                     } else if char == "=" {
-                        tokens.push(Token::form(cur_line,ASSIGN, "="));
+                        tokens.push(Token::form(cur_line, ASSIGN, "="));
                         state = S::Done;
                     } else if char == "+" {
-                        tokens.push(Token::form(cur_line,PLUS, "+"));
+                        tokens.push(Token::form(cur_line, PLUS, "+"));
                         state = S::Done;
-                    }else if char == "-" {
-                        tokens.push(Token::form(cur_line,MINUS, "-"));
+                    } else if char == "-" {
+                        tokens.push(Token::form(cur_line, MINUS, "-"));
                         state = S::Done;
-                    }else if char == "*" {
-                        tokens.push(Token::form(cur_line,ASTERISK, "*"));
+                    } else if char == "*" {
+                        tokens.push(Token::form(cur_line, ASTERISK, "*"));
                         state = S::Done;
-                    }else if char == "/" {
-                        tokens.push(Token::form(cur_line,SLASH, "/"));
+                    } else if char == "/" {
+                        tokens.push(Token::form(cur_line, SLASH, "/"));
                         state = S::Done;
                     } else if char == ";" {
-                        tokens.push(Token::form(cur_line,SEMICOLON, ";"));
+                        tokens.push(Token::form(cur_line, SEMICOLON, ";"));
                         cur_line += 1;
                         state = S::Done;
-                    }else if char == "(" {
-                        tokens.push(Token::form(cur_line,LPAREN, "("));
+                    } else if char == "(" {
+                        tokens.push(Token::form(cur_line, LPAREN, "("));
                         state = S::Done;
-                    }else if char == ")" {
-                        tokens.push(Token::form(cur_line,RPAREN, ")"));
+                    } else if char == ")" {
+                        tokens.push(Token::form(cur_line, RPAREN, ")"));
                         state = S::Done;
                     };
                 }
@@ -84,7 +84,7 @@ pub fn analysis() -> Vec<Token>{
                     if is_digit!(char) {
                         state = S::Num;
                     } else {
-                        tokens.push(Token::form(cur_line,NUM, &CODE.clone()[index..lookup - 1]));
+                        tokens.push(Token::form(cur_line, NUM, &CODE.clone()[index..lookup - 1]));
                         lookup -= 1;
                         state = S::Done;
                     }
@@ -99,7 +99,7 @@ pub fn analysis() -> Vec<Token>{
                             let key_word = temp_token;
                             tokens.push(Token::form(cur_line, KEYWORDS, key_word));
                         } else {
-                            tokens.push(Token::form(cur_line,ID, temp_token));
+                            tokens.push(Token::form(cur_line, ID, temp_token));
                         }
                         state = S::Done;
                     }
@@ -109,7 +109,6 @@ pub fn analysis() -> Vec<Token>{
         index = lookup;
         state = S::Start;
     }
-    tokens.push(Token::form(cur_line,EOF, "EOF"));
+    tokens.push(Token::form(cur_line, EOF, "EOF"));
     tokens
-
 }
