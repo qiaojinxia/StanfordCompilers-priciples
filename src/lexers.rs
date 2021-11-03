@@ -1,9 +1,7 @@
 use crate::define::{TokenType, CODE};
 use regex::Regex;
 
-use crate::define::TokenType::{
-    ASSIGN, ASTERISK, EOF, ID, KEYWORDS, LPAREN, MINUS, NUM, PLUS, RPAREN, SEMICOLON, SLASH,
-};
+use crate::define::TokenType::{ASSIGN, ASTERISK, EOF, ID, KEYWORDS, LPAREN, MINUS, NUM, PLUS, RPAREN, SEMICOLON, SLASH, LBRACES, RBRACES};
 use crate::{is_blank, is_digit, is_keywords, is_letter, is_new_line, is_valid_id};
 
 #[derive(Debug, Eq, PartialEq)]
@@ -76,6 +74,12 @@ pub fn analysis() -> Vec<Token> {
                         state = S::Done;
                     } else if char == ")" {
                         tokens.push(Token::form(cur_line, RPAREN, ")"));
+                        state = S::Done;
+                    }else if char == "{" {
+                        tokens.push(Token::form(cur_line, LBRACES, "{"));
+                        state = S::Done;
+                    } else if char == "}" {
+                        tokens.push(Token::form(cur_line, RBRACES, "}"));
                         state = S::Done;
                     };
                 }

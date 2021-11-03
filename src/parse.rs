@@ -116,13 +116,13 @@ pub(crate) fn parser_operator_express(
         right: None,
     };
     let token = parser.scaner.next_token().unwrap();
-    let token_priority = token.t_type.priority();
+    let token_priority = token.t_type.precedence();
     _express.operator = String::from(token.literal);
     _express.right = parser_express(parser, token_priority);
     Some(Box::new(_express))
 }
 
-pub(crate) fn parser_express(parser: &mut Parser, priority: i32) -> Option<Box<dyn E>> {
+pub(crate) fn parser_express(parser: &mut Parser, precedence: i32) -> Option<Box<dyn E>> {
     let left_express = parser
         .get_express(parser.scaner.peek().unwrap().t_type)
         .unwrap();
@@ -131,7 +131,7 @@ pub(crate) fn parser_express(parser: &mut Parser, priority: i32) -> Option<Box<d
         match parser.scaner.peek() {
             None => break,
             Some(token) => {
-                if token.t_type.priority() <= priority {
+                if token.t_type.precedence() <= precedence {
                     break;
                 }
                 let exec = parser.get_express(token.t_type).unwrap();

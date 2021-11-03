@@ -1,4 +1,4 @@
-use crate::define::NType;
+use crate::define::{NType, TokenType};
 use std::fmt::{Display, Formatter};
 
 pub(crate) trait E: Display {}
@@ -44,10 +44,25 @@ pub struct Literal {
     pub(crate) value: String,
 }
 
+#[derive(Debug)]
+pub struct Strings {
+    pub(crate) m_type: NType,
+    pub(crate) value: String,
+}
+
+impl Strings {
+    pub(crate) fn new() -> Strings {
+        Strings {
+            m_type: NType::Strings,
+            value: "".to_string(),
+        }
+    }
+}
+
 impl Literal {
     pub(crate) fn new() -> Literal {
         Literal {
-            m_type: NType::None,
+            m_type: NType::Int,
             value: "".to_string(),
         }
     }
@@ -83,3 +98,38 @@ impl Display for OperatorExpress {
         )
     }
 }
+
+#[derive(Debug)]
+pub struct ArrayExpress {
+    pub(crate) m_type: TokenType,
+    pub(crate) body:Vec<Box<dyn E>>
+}
+
+impl Display for ArrayExpress {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        todo!()
+    }
+}
+
+impl E for ArrayExpress{
+
+}
+
+#[derive(Debug)]
+pub struct BlockStatement {
+    pub(crate) m_type: TokenType,
+    pub(crate) body:Vec<Box<dyn E>>
+}
+
+impl Display for BlockStatement {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        todo!()
+    }
+}
+
+impl S for BlockStatement{
+
+}
+
+
+

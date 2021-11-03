@@ -32,6 +32,8 @@ pub enum TokenType {
     KEYWORDS,
     LPAREN,
     RPAREN,
+    LBRACES,
+    RBRACES,
     SEMICOLON,
     WHITESPACE,
     ASSIGN,
@@ -45,13 +47,13 @@ impl Display for TokenType {
 }
 
 impl TokenType {
-    pub fn priority(self) -> i32 {
+    pub fn precedence(self) -> i32 {
         match self {
             TokenType::NUM => 0,
             TokenType::ID => 0,
             TokenType::KEYWORDS => 0,
             TokenType::LPAREN => 3,
-            TokenType::RPAREN => 0,
+            TokenType::RPAREN => 3,
             TokenType::SEMICOLON => 0,
             TokenType::WHITESPACE => 0,
             TokenType::ASSIGN => 0,
@@ -60,6 +62,8 @@ impl TokenType {
             TokenType::ASTERISK => 2,
             TokenType::SLASH => 2,
             TokenType::EOF => 0,
+            TokenType::LBRACES => 4,
+            TokenType::RBRACES => 4
         }
     }
     pub fn call(self) -> &'static str {
@@ -77,6 +81,8 @@ impl TokenType {
             TokenType::ASTERISK => "ASTERISK",
             TokenType::SLASH => "SLASH",
             TokenType::EOF => "EOF",
+            TokenType::LBRACES => "LBRACES",
+            TokenType::RBRACES => "RBRACES"
         }
     }
 }
