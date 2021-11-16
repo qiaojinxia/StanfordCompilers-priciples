@@ -5,6 +5,15 @@ macro_rules! is_keywords {
         arr.contains($x)
     }};
 }
+
+#[macro_export]
+macro_rules! is_operator {
+    ( $x:expr ) => {{
+        let arr: [&str; 4] = [ "+", "-", "*" , "/" ];
+        arr.contains($x)
+    }};
+}
+
 #[macro_export]
 macro_rules! is_digit {
     ( $x:expr ) => {{

@@ -99,7 +99,7 @@ impl Display for OperatorExpress {
     }
 }
 
-#[derive(Debug)]
+
 pub struct ArrayExpress {
     pub(crate) m_type: TokenType,
     pub(crate) body:Vec<Box<dyn E>>
@@ -115,7 +115,7 @@ impl E for ArrayExpress{
 
 }
 
-#[derive(Debug)]
+
 pub struct BlockStatement {
     pub(crate) m_type: TokenType,
     pub(crate) body:Vec<Box<dyn E>>
@@ -131,5 +131,17 @@ impl S for BlockStatement{
 
 }
 
+pub struct IfStatement{
+    pub(crate) test:Option<Box<dyn E>>,
+    pub(crate) alternate:Option<Box<dyn S>>,
+}
 
+impl Display for IfStatement {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        todo!()
+    }
+}
 
+impl S for IfStatement{
+
+}

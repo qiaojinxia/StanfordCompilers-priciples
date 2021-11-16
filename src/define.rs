@@ -1,14 +1,21 @@
 use std::fmt::{Display, Formatter};
 
 pub const CODE: &str = "
-var b3 = 2 * 3 + 2 * 4;
+var b3 == 2 * 3 + 2 * 4;
+if(a == 3){
+
+}else if(a == 4){
+
+}else{
+
+}
 ";
 
 #[derive(Debug, Copy, Clone)]
 pub enum KeyWord {
     VAR,
     // RETURN,
-    // IF,
+    IF,
 }
 
 impl KeyWord {
@@ -16,7 +23,7 @@ impl KeyWord {
         match self {
             KeyWord::VAR => "var",
             // KeyWord::RETURN => "return",
-            // KeyWord::IF => "if",
+            KeyWord::IF => "if",
         }
     }
 }
@@ -29,6 +36,7 @@ pub enum TokenType {
     ASTERISK,
     PLUS,
     SLASH,
+    OPERATOR,
     KEYWORDS,
     LPAREN,
     RPAREN,
@@ -63,7 +71,8 @@ impl TokenType {
             TokenType::SLASH => 2,
             TokenType::EOF => 0,
             TokenType::LBRACES => 4,
-            TokenType::RBRACES => 4
+            TokenType::RBRACES => 4,
+            TokenType::OPERATOR => 0
         }
     }
     pub fn call(self) -> &'static str {
@@ -82,7 +91,8 @@ impl TokenType {
             TokenType::SLASH => "SLASH",
             TokenType::EOF => "EOF",
             TokenType::LBRACES => "LBRACES",
-            TokenType::RBRACES => "RBRACES"
+            TokenType::RBRACES => "RBRACES",
+            TokenType::OPERATOR => "OPERATOR"
         }
     }
 }

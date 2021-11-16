@@ -1,4 +1,4 @@
-use crate::ast::{Literal, OperatorExpress, VarStatements, E, ID, S};
+use crate::ast::{Literal, OperatorExpress, VarStatements, E, ID, S, IfStatement};
 use crate::define::TokenType::EOF;
 use crate::define::{KeyWord, NType, TokenType};
 use crate::hashmap;
@@ -104,6 +104,24 @@ pub(crate) fn func_parser_var(parser: &mut Parser) -> Option<Box<dyn S>> {
     }
     _statment.init = parser_express(parser, 0);
     Some(Box::new(_statment))
+}
+
+pub(crate) fn func_parser_if(parser: &mut Parser) -> Option<Box<dyn S>> {
+        let mut _statment = IfStatement {
+            test: None,
+            alternate: None
+        };
+    None
+    // _statment.identifier = func_parser_id(parser, None);
+    // let assign_token = parser.scaner.next_token().unwrap();
+    // if assign_token.t_type != TokenType::ASSIGN {
+    //     panic!(
+    //         "友情提示:行:{} 期望 '=' 找到 '{}'!",
+    //         assign_token.line, assign_token.literal
+    //     )
+    // }
+    // _statment.init = parser_express(parser, 0);
+    // Some(Box::new(_statment))
 }
 
 pub(crate) fn parser_operator_express(
